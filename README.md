@@ -1,4 +1,4 @@
-# Coalesced Multi-Output Tsetlin Machine Multi-GPU w/Dropout
+# Tsetlin Machine Multi-GPU w/Dropout
 
 ### CIFAR Demo
 
