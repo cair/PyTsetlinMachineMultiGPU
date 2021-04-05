@@ -118,7 +118,7 @@ code_update = """
 			}
 		}
 
-		__device__ inline void update_clause(curandState *localState, int *clause_weight, unsigned int *ta_state, int clause_output, int clause_patch, int *X, int y, int class_sum)
+		__device__ inline void update_clause(curandState *localState, int *clause_weight, unsigned int *ta_state, int clause_output, int clause_patch, unsigned int *drop_feature, int *X, int y, int class_sum)
 		{
 			int target = 1 - 2*(class_sum > y);
 			
@@ -147,14 +147,14 @@ code_update = """
 
 						if (clause_output) {
 							#if BOOST_TRUE_POSITIVE_FEEDBACK == 1
-								inc(ta_state, 0, la_chunk, X[clause_patch*LA_CHUNKS + la_chunk]);
+								inc(ta_state, 0, la_chunk, (~drop_feature[la_chunk]) & X[clause_patch*LA_CHUNKS + la_chunk]);
 							#else
-								inc(ta_state, 0, la_chunk, X[clause_patch*LA_CHUNKS + la_chunk] & (~la_feedback));
+								inc(ta_state, 0, la_chunk, (~drop_feature[la_chunk]) & X[clause_patch*LA_CHUNKS + la_chunk] & (~la_feedback));
 							#endif
 
-							dec(ta_state, 0, la_chunk, (~X[clause_patch*LA_CHUNKS + la_chunk]) & la_feedback);
+							dec(ta_state, 0, la_chunk, (~drop_feature[la_chunk]) & (~X[clause_patch*LA_CHUNKS + la_chunk]) & la_feedback);
 						} else {
-							dec(ta_state, 0, la_chunk, la_feedback);
+							dec(ta_state, 0, la_chunk, (~drop_feature[la_chunk]) & la_feedback);
 						}
 					}
 				} else if (target*sign < 0 && clause_output) {
@@ -165,7 +165,7 @@ code_update = """
 					}
 					
 					for (int la_chunk = 0; la_chunk < LA_CHUNKS; ++la_chunk) {
-						inc(ta_state, 0, la_chunk, (~X[clause_patch*LA_CHUNKS + la_chunk]) & (~ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]));
+						inc(ta_state, 0, la_chunk, (~drop_feature[la_chunk]) & (~X[clause_patch*LA_CHUNKS + la_chunk]) & (~ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]));
 					}
 				}
 			}
@@ -240,7 +240,7 @@ code_update = """
 				} else if (local_class_sum < -THRESHOLD) {
 					local_class_sum = -THRESHOLD;
 				}
-				update_clause(&localState, &clause_weights[clause], ta_state, clause_output, clause_patch, &X[example*(LA_CHUNKS*PATCHES)], y[example*CLASSES + class_id], local_class_sum);
+				update_clause(&localState, &clause_weights[clause], ta_state, clause_output, clause_patch, drop_feature, &X[example*(LA_CHUNKS*PATCHES)], y[example*CLASSES + class_id], local_class_sum);
 			}
 		
 			state[index] = localState;
