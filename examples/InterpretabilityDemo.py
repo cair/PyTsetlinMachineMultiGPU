@@ -19,7 +19,7 @@ print("Accuracy:", 100*(tm.predict(X_test) == Y_test).mean())
 
 print("\nClass 0 Positive Clauses:\n")
 for j in range(0, 10, 2):
-        print("Clause #%d: " % (j), end=' ')
+        print("Clause #%d (%d): " % (j, tm.get_weight(1, j)), end=' ')
         l = []
         for k in range(number_of_features*2):
                 if tm.ta_action(0, j, k) == 1:
@@ -31,7 +31,7 @@ for j in range(0, 10, 2):
 
 print("\nClass 0 Negative Clauses:\n")
 for j in range(1, 10, 2):
-        print("Clause #%d: " % (j), end=' ')
+        print("Clause #%d (%d): " % (j, tm.get_weight(0, j)), end=' ')
         l = []
         for k in range(number_of_features*2):
                 if tm.ta_action(0, j, k) == 1:
@@ -43,7 +43,7 @@ for j in range(1, 10, 2):
 
 print("\nClass 1 Positive Clauses:\n")
 for j in range(0, 10, 2):
-        print("Clause #%d: " % (j), end=' ')
+        print("Clause #%d (%d): " % (j, tm.get_weight(1, j)), end=' ')
         l = []
         for k in range(number_of_features*2):
                 if tm.ta_action(1, j, k) == 1:
@@ -55,7 +55,7 @@ for j in range(0, 10, 2):
 
 print("\nClass 1 Negative Clauses:\n")
 for j in range(1, 10, 2):
-        print("Clause #%d: " % (j), end=' ')
+        print("Clause #%d (%d): " % (j, tm.get_weight(1, j)), end=' ')
         l = []
         for k in range(number_of_features*2):
                 if tm.ta_action(1, j, k) == 1:

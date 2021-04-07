@@ -152,6 +152,14 @@ class CommonTsetlinMachine():
 			gpu.drop_feature_gpu = cuda.mem_alloc(self.number_of_ta_chunks*4)
 			gpu.context.pop()
 
+
+	def get_weight(self, mc_tm_class, clause):
+		global_clause = mc_tm_class*self.number_of_clauses//self.number_of_classes + clause
+		gpu_clause = global_clause % self.number_of_clauses_multi
+		gpu_id = global_clause//self.number_of_clauses_multi
+
+		return(self.get_state()[1][gpu_id][gpu_clause])
+
 	def ta_action(self, mc_tm_class, clause, ta):
 		state = self.get_state()[0]
 		global_clause = mc_tm_class*self.number_of_clauses//self.number_of_classes + clause
