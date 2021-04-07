@@ -11,6 +11,8 @@ s = 5.0
 
 T = int(factor*25*10)
 
+clauses = int(factor*2000)
+
 ensembles = 10
 epochs = 250
 
@@ -29,10 +31,10 @@ number_of_features = number_of_x_pos_features + number_of_y_pos_features + numbe
 X_train = np.where(X_train >= 75, 1, 0) 
 X_test = np.where(X_test >= 75, 1, 0)
 
-f = open("mnist_%.1f_%d_%d_%d.txt" % (s, int(factor*2000), T,  patch_size), "w+")
+f = open("mnist_%.1f_%d_%d_%d.txt" % (s, clauses, T,  patch_size), "w+")
 
 for e in range(ensembles):
-	tm = MultiClassConvolutionalTsetlinMachine2D(int(factor*2000), T, s, (patch_size, patch_size), clause_drop_p = 0.01, feature_drop_p = 0.01, number_of_gpus = 16)
+	tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (patch_size, patch_size), clause_drop_p = 0.01, feature_drop_p = 0.01, number_of_gpus = 16)
 
 	for i in range(epochs):
 		start_training = time()
@@ -49,9 +51,15 @@ for e in range(ensembles):
 		print("%d %d %.2f %.2f %.2f %.2f" % (e, i, result_train, result_test, stop_training-start_training, stop_testing-start_testing), file=f)
 		f.flush()
 
-		# Example of getting a single clause (clause 0 of class 0)
+		# Example of getting a single clause (find the one with the largest weight)
 		class_id = 0
 		clause = 0
+		max_weight = 0
+		for i in range(10):
+			for j in range(clauses//10): 
+				if tm.get_weight(i, j) > max_weight:
+					class_id = i
+					clause = j
 
 		# If patch mask_1 contains 1, the correponding image pixel must also be 1.
 		mask_1 = np.zeros((patch_size, patch_size)).astype(np.int8)
@@ -71,5 +79,6 @@ for e in range(ensembles):
 
 
 		# Combined mask (-1 must be 0 and 1 must be 1 for the corresponding image pixel value, 0 means ignore image pixel value)
+		print("Weight:", max_weight)
 		print(mask_1 - mask_0)
 f.close()
