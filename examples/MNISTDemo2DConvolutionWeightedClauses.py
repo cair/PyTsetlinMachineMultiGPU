@@ -70,9 +70,6 @@ for e in range(ensembles):
 					mask_0[patch_x, patch_y] = 1
 
 
-		# Combined mask (0 and 1 must match corresponding image pixel value, -1 means ignore image pixel value)
-		mask = np.ones((patch_size, patch_size)).astype(np.uint8)*-1
-		mask += mask_1*2
-		mask += mask_1
-		print(mask)
+		# Combined mask (-1 must be 0 and 1 must be 1 for the corresponding image pixel value, 0 means ignore image pixel value)
+		print(mask_1 - mask_0)
 f.close()
