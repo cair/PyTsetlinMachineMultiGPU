@@ -62,6 +62,28 @@ for e in range(ensembles):
 					clause = j
 					max_weight = tm.get_weight(i, j)
 
+		# Get lower bound for X and Y coordinates
+		lower_x = -1
+		lower_y = -1
+		for k in range(number_of_x_pos_features):
+
+			if tm.ta_action(class_id, clause, k) == 1:
+				lower_x = k
+
+			if tm.ta_action(class_id, clause, k + number_of_x_pos_features) == 1:
+				lower_y = k
+
+		# Get upper bound for X and Y coordinates
+		upper_x = image_size
+		upper_y = image_size
+		for k in range(number_of_x_pos_features-1, -1, -1):
+
+			if tm.ta_action(class_id, clause, number_of_features + k) == 1:
+				upper_x = k
+
+			if tm.ta_action(class_id, clause, number_of_features + k + number_of_x_pos_features) == 1:
+				upper_y = k
+
 		# If patch mask_1 contains 1, the correponding image pixel must also be 1.
 		mask_1 = np.zeros((patch_size, patch_size)).astype(np.int8)
 		for patch_y in range(patch_size):
@@ -80,6 +102,10 @@ for e in range(ensembles):
 
 		# Combined mask (-1 must be 0 and 1 must be 1 for the corresponding image pixel value, 0 means ignore image pixel value)
 		print("Weight:", max_weight)
+
+		print(lower_x, "< x <=", upper_x)
+		print(lower_y, "< y <=", upper_y)
+		
 		print(mask_1 - mask_0)
 
 		# Example of getting a single clause (find the one with the largest weight)
