@@ -54,7 +54,7 @@ for e in range(ensembles):
 		clause = 0
 
 		# If patch mask_1 contains 1, the correponding image pixel must also be 1.
-		mask_1 = np.zeros((patch_size, patch_size)).astype(np.uint8)
+		mask_1 = np.zeros((patch_size, patch_size)).astype(np.int8)
 		for patch_y in range(patch_size):
 			for patch_x in range(patch_size):
 				feature = number_of_x_pos_features + number_of_y_pos_features + patch_y * patch_size + patch_x
@@ -62,7 +62,7 @@ for e in range(ensembles):
 					mask_1[patch_x, patch_y] = 1
 
 		# If patch mask_0 contains 1, the correponding image pixel must also be 0 (negated features)
-		mask_0 = np.zeros((patch_size, patch_size)).astype(np.uint8)
+		mask_0 = np.zeros((patch_size, patch_size)).astype(np.int8)
 		for patch_y in range(patch_size):
 			for patch_x in range(patch_size):
 				feature = number_of_features + number_of_x_pos_features + number_of_y_pos_features + patch_y * patch_size + patch_x
