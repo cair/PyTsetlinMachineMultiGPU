@@ -69,6 +69,10 @@ for e in range(ensembles):
 				if tm.ta_action(class_id, clause, feature) == 1:
 					mask_0[patch_x, patch_y] = 1
 
-		print(mask_1)
-		print(mask_0)
+
+		# Combined mask (0 and 1 must match corresponding image pixel value, -1 means ignore image pixel value)
+		mask = np.ones((patch_size, patch_size)).astype(np.uint8)*-1
+		mask += mask_1*2
+		mask += mask_1
+		print(mask)
 f.close()
