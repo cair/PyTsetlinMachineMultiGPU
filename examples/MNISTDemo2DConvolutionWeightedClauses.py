@@ -60,6 +60,7 @@ for e in range(ensembles):
 				if tm.get_weight(i, j) > max_weight:
 					class_id = i
 					clause = j
+					max_weight = tm.get_weight(i, j)
 
 		# If patch mask_1 contains 1, the correponding image pixel must also be 1.
 		mask_1 = np.zeros((patch_size, patch_size)).astype(np.int8)
@@ -76,7 +77,6 @@ for e in range(ensembles):
 				feature = number_of_features + number_of_x_pos_features + number_of_y_pos_features + patch_y * patch_size + patch_x
 				if tm.ta_action(class_id, clause, feature) == 1:
 					mask_0[patch_x, patch_y] = 1
-
 
 		# Combined mask (-1 must be 0 and 1 must be 1 for the corresponding image pixel value, 0 means ignore image pixel value)
 		print("Weight:", max_weight)
