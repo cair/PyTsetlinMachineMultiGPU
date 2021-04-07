@@ -40,6 +40,7 @@ class CommonTsetlinMachine():
 	def __init__(self, number_of_clauses, T, s, clause_drop_p=0.0, feature_drop_p=0.0, number_of_gpus=1, q=1.0, boost_true_positive_feedback=1, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
 		self.number_of_gpus = np.minimum(cuda.Device.count(), number_of_gpus)
 
+		self.number_of_clauses = number_of_clauses
 		self.number_of_clauses_multi = int(number_of_clauses // self.number_of_gpus)
 		self.number_of_state_bits = number_of_state_bits
 		self.T = int(T)
@@ -152,12 +153,14 @@ class CommonTsetlinMachine():
 			gpu.context.pop()
 
 	def ta_action(self, mc_tm_class, clause, ta):
-		if np.array_equal(self.ta_state, np.array([])):
-			self.ta_state = np.empty(self.number_of_clauses*self.number_of_ta_chunks*self.number_of_state_bits).astype(np.uint32)
-			cuda.memcpy_dtoh(self.ta_state, self.ta_state_gpu)
-		ta_state = self.ta_state.reshape((self.number_of_classes, self.number_of_clauses//self.number_of_classes, self.number_of_ta_chunks, self.number_of_state_bits))
+		state = self.get_state()
+		global_clause = mc_tm_class*self.number_of_clauses//self.number_of_classes + clause
+		gpu_clause = global_clause % self.number_of_clauses_multi
+		gpu_id = global_clause//self.number_of_clauses_multi
 
-		return (ta_state[mc_tm_class, clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))) > 0
+		ta_state = state[0][gpu_id].reshape((self.number_of_clauses_multi, self.number_of_ta_chunks, self.number_of_state_bits))
+
+		return (ta_state[gpu_clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))) > 0
 
 	def get_state(self):
 		if np.array_equal(self.clause_weights, np.array([])):
