@@ -153,12 +153,13 @@ class CommonTsetlinMachine():
 			gpu.context.pop()
 
 	def ta_action(self, mc_tm_class, clause, ta):
-		state = self.get_state()
+		state = self.get_state()[0]
+		print("Len", len(state))
 		global_clause = mc_tm_class*self.number_of_clauses//self.number_of_classes + clause
 		gpu_clause = global_clause % self.number_of_clauses_multi
 		gpu_id = global_clause//self.number_of_clauses_multi
-
-		ta_state = state[0][gpu_id].reshape((self.number_of_clauses_multi, self.number_of_ta_chunks, self.number_of_state_bits))
+		print("GPU_ID", gpu_id)
+		ta_state = state[gpu_id].reshape((self.number_of_clauses_multi, self.number_of_ta_chunks, self.number_of_state_bits))
 
 		return (ta_state[gpu_clause, ta // 32, self.number_of_state_bits-1] & (1 << (ta % 32))) > 0
 
