@@ -81,4 +81,35 @@ for e in range(ensembles):
 		# Combined mask (-1 must be 0 and 1 must be 1 for the corresponding image pixel value, 0 means ignore image pixel value)
 		print("Weight:", max_weight)
 		print(mask_1 - mask_0)
+
+		# Example of getting a single clause (find the one with the largest weight)
+		class_id = 0
+		clause = 0
+		min_weight = 0
+		for i in range(10):
+			for j in range(clauses//10): 
+				if tm.get_weight(i, j) < min_weight:
+					class_id = i
+					clause = j
+					min_weight = tm.get_weight(i, j)
+
+		# If patch mask_1 contains 1, the correponding image pixel must also be 1.
+		mask_1 = np.zeros((patch_size, patch_size)).astype(np.int8)
+		for patch_y in range(patch_size):
+			for patch_x in range(patch_size):
+				feature = number_of_x_pos_features + number_of_y_pos_features + patch_y * patch_size + patch_x
+				if tm.ta_action(class_id, clause, feature) == 1:
+					mask_1[patch_x, patch_y] = 1
+
+		# If patch mask_0 contains 1, the correponding image pixel must also be 0 (negated features)
+		mask_0 = np.zeros((patch_size, patch_size)).astype(np.int8)
+		for patch_y in range(patch_size):
+			for patch_x in range(patch_size):
+				feature = number_of_features + number_of_x_pos_features + number_of_y_pos_features + patch_y * patch_size + patch_x
+				if tm.ta_action(class_id, clause, feature) == 1:
+					mask_0[patch_x, patch_y] = 1
+
+		# Combined mask (-1 must be 0 and 1 must be 1 for the corresponding image pixel value, 0 means ignore image pixel value)
+		print("Weight:", min_weight)
+		print(mask_1 - mask_0)
 f.close()
