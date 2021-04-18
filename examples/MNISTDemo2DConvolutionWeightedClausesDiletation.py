@@ -20,7 +20,7 @@ epochs = 250
 
 batches = 10
 
-resolution = 1
+resolution = 2
 
 patch_size = 10
 image_size = 28
