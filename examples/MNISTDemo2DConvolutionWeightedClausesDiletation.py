@@ -20,7 +20,7 @@ epochs = 250
 
 batches = 10
 
-resolution = 2
+resolution = 3
 
 patch_size = 10
 image_size = 28
@@ -48,7 +48,7 @@ for i in range(X_train.shape[0]):
     	kernel = np.ones((r*2+1,r*2+1),np.uint8)
     	X_train_binary[i,:,:,r] = cv2.dilate(X_train[i].astype(np.uint8), kernel, iterations = 1)
 
-f = open("mnist_%.1f_%d_%d_%d.txt" % (s, clauses, T,  patch_size), "w+")
+f = open("mnist_%.1f_%d_%d_%d_%d.txt" % (s, clauses, T,  patch_size, resolution), "w+")
 
 for e in range(ensembles):
 	tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (patch_size, patch_size), number_of_gpus = 16)
