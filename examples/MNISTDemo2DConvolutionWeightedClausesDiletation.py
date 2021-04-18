@@ -38,6 +38,7 @@ X_test = np.where(X_test >= 75, 1, 0)
 X_test_binary = np.zeros((X_test.shape[0], 32, 32, resolution)).astype(np.uint8)
 for i in range(X_test.shape[0]):
     for r in range(resolution):
+    	kernel = np.ones((r*2+1,r*2+1),np.uint8)
     	X_test_binary[i,:,:,r] = cv2.dilate(X_test.shape[0], kernel, iterations = 1)
 print(X_test_binary.shape)
 
@@ -45,7 +46,7 @@ X_train_binary = np.zeros((X_train.shape[0], 32, 32, resolution)).astype(np.uint
 for i in range(X_train.shape[0]):
     for r in range(resolution):
     	kernel = np.ones((r*2+1,r*2+1),np.uint8)
-        X_train_binary[i,:,:,r] = cv2.dilate(X_train.shape[0], kernel, iterations = 1)
+    	X_train_binary[i,:,:,r] = cv2.dilate(X_train.shape[0], kernel, iterations = 1)
 
 f = open("mnist_%.1f_%d_%d_%d.txt" % (s, clauses, T,  patch_size), "w+")
 
