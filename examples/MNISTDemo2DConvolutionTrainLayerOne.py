@@ -13,7 +13,7 @@ tm = MultiClassConvolutionalTsetlinMachine2D(4000, 10*100, 10.0, (10, 10))
 
 print("\nAccuracy over 20 epochs:\n")
 max_accuracy = 0.0
-for i in range(1):
+for i in range(20):
 	start_training = time()
 	tm.fit(X_train, Y_train, epochs=1, incremental=True)
 	stop_training = time()
