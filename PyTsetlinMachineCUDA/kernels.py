@@ -472,11 +472,8 @@ code_transform = """
 			int index = blockIdx.x * blockDim.x + threadIdx.x;
 			int stride = blockDim.x * gridDim.x;
 
-			for (int i = index; i < CLASSES*CLAUSES; i += stride) {
-				unsigned long long class_id = i / CLAUSES;
-				unsigned long long clause = i % CLAUSES;
-
-				unsigned int *ta_state = &global_ta_state[class_id*CLAUSES*LA_CHUNKS*STATE_BITS + clause*LA_CHUNKS*STATE_BITS];
+			for (int clause = index; clause < CLAUSES; clause += stride) {
+				unsigned int *ta_state = &global_ta_state[clause*LA_CHUNKS*STATE_BITS];
 
 				int all_exclude = 1;
 				for (int la_chunk = 0; la_chunk < LA_CHUNKS-1; ++la_chunk) {
@@ -492,7 +489,7 @@ code_transform = """
 
 				if (all_exclude) {
 					for (unsigned long long e = 0; e < NUMBER_OF_EXAMPLES; ++e) {
-						transformed_X[e*CLASSES*CLAUSES + i] = 0;
+						transformed_X[e*CLAUSES + i] = 0;
 					}
 					
 					continue;
@@ -518,7 +515,7 @@ code_transform = """
 						}
 					}
 
-					transformed_X[e*CLASSES*CLAUSES + i] = clause_output;
+					transformed_X[e*CLAUSES + i] = clause_output;
 				}
 			}
 		}

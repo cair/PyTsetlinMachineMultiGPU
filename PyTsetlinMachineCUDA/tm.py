@@ -125,23 +125,6 @@ class CommonTsetlinMachine():
 
 		self.sync_gpus() ## NOT NEEDED
 
-	def encode_X(self, X, encoded_X_gpu):
-		number_of_examples = X.shape[0]
-
-		Xm = np.ascontiguousarray(X.flatten()).astype(np.uint32)
-		X_gpu = cuda.mem_alloc(Xm.nbytes)
-		cuda.memcpy_htod(X_gpu, Xm)
-		if self.append_negated:			
-			self.prepare_encode(X_gpu, encoded_X_gpu, np.int32(number_of_examples), np.int32(self.dim[0]), np.int32(self.dim[1]), np.int32(self.dim[2]), np.int32(self.patch_dim[0]), np.int32(self.patch_dim[1]), np.int32(1), np.int32(0), grid=self.grid, block=self.block)
-			cuda.Context.synchronize()
-			self.encode(X_gpu, encoded_X_gpu, np.int32(number_of_examples), np.int32(self.dim[0]), np.int32(self.dim[1]), np.int32(self.dim[2]), np.int32(self.patch_dim[0]), np.int32(self.patch_dim[1]), np.int32(1), np.int32(0), grid=self.grid, block=self.block)
-			cuda.Context.synchronize()
-		else:
-			self.prepare_encode(X_gpu, encoded_X_gpu, np.int32(number_of_examples), np.int32(self.dim[0]), np.int32(self.dim[1]), np.int32(self.dim[2]), np.int32(self.patch_dim[0]), np.int32(self.patch_dim[1]), np.int32(0), np.int32(0), grid=self.grid, block=self.block)
-			cuda.Context.synchronize()
-			self.encode(X_gpu, encoded_X_gpu, np.int32(number_of_examples), np.int32(self.dim[0]), np.int32(self.dim[1]), np.int32(self.dim[2]), np.int32(self.patch_dim[0]), np.int32(self.patch_dim[1]), np.int32(0), np.int32(0), grid=self.grid, block=self.block)
-			cuda.Context.synchronize()
-
 	def allocate_gpu_memory_multi(self, number_of_examples):
 		for gpu in self.gpus:
 			gpu.context.push()
@@ -224,10 +207,15 @@ class CommonTsetlinMachine():
 	def transform(self, X):
 		number_of_examples = X.shape[0]
 		
-		encoded_X_gpu = cuda.mem_alloc(int(number_of_examples * self.number_of_patches * self.number_of_ta_chunks*4))
-		self.encode_X(X, encoded_X_gpu)
+		self.encoded_X_transform_gpus = []
+		for gpu in self.gpus:
+			gpu.context.push()
+			self.encoded_X_transform_gpus.append(cuda.mem_alloc(int(number_of_examples * self.number_of_patches * self.number_of_ta_chunks*4)))
+			gpu.context.pop()
 
-		parameters = """
+		self.encode_X_multi(X, self.encoded_X_transform_gpus)
+
+		parameters_multi = """
 #define CLASSES %d
 #define CLAUSES %d
 #define FEATURES %d
@@ -241,18 +229,32 @@ class CommonTsetlinMachine():
 #define PATCHES %d
 
 #define NUMBER_OF_EXAMPLES %d
-		""" % (self.number_of_classes, self.number_of_clauses, self.number_of_features, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.negative_clauses, self.number_of_patches, number_of_examples)
+		""" % (self.number_of_classes, self.number_of_clauses_multi, self.number_of_features, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.negative_clauses, self.number_of_patches, number_of_examples)
 
-		mod = SourceModule(parameters + kernels.code_header + kernels.code_transform, no_extern_c=True)
-		transform = mod.get_function("transform")
+		for gpu in self.gpus:
+			gpu.context.push()
+			mod = SourceModule(parameters + kernels.code_header + kernels.code_transform, no_extern_c=True)
+			gpu.transform = mod.get_function("transform")
+			gpu.X_transformed_gpu = cuda.mem_alloc(number_of_examples*self.number_of_clauses_multi*4)
+			gpu.context.pop()
 
-		X_transformed_gpu = cuda.mem_alloc(number_of_examples*self.number_of_clauses*4)
-		transform(self.ta_state_gpu, encoded_X_gpu, X_transformed_gpu, grid=self.grid, block=self.block)
-		cuda.Context.synchronize()
-		X_transformed = np.ascontiguousarray(np.empty(number_of_examples*self.number_of_clauses, dtype=np.uint32))
-		cuda.memcpy_dtoh(X_transformed, X_transformed_gpu)
-		
-		return X_transformed.reshape((number_of_examples, self.number_of_clauses))
+		for i in range(len(self.gpus)):
+			gpu = self.gpus[i]
+			gpu.context.push()
+			gpu.transform(gpu.ta_state_gpu, self.encoded_X_transform_gpus[i], gpu.X_transformed_gpu, grid=self.grid, block=self.block)
+			gpu.context.pop()
+
+		global_X_transformed = np.ascontiguousarray(np.empty(number_of_examples*self.number_of_clauses, dtype=np.uint32))
+		for i in range(len(self.gpus)):
+			gpu = self.gpus[i]
+			gpu.context.push()
+			gpu.context.synchronize()
+			local_X_transformed = np.ascontiguousarray(np.empty(number_of_examples*self.number_of_clauses_multi, dtype=np.uint32))
+			cuda.memcpy_dtoh(local_X_transformed, gpu.X_transformed_gpu)
+			global_X_transformed[:,i*self.number_of_clauses_multi:(i+1)*self.number_of_clauses_multi] = local_X_transformed
+			gpu.context.pop()
+
+		return global_X_transformed.reshape((number_of_examples, self.number_of_clauses))
 
 	def _fit(self, X, encoded_Y, epochs=100, incremental=False):
 		number_of_examples = X.shape[0]
