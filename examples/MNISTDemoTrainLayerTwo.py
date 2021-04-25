@@ -3,8 +3,9 @@ import numpy as np
 from time import time
 from keras.datasets import mnist
 
-clauses = 2*400
-threshold = 2*80*100
+scaling_factor = 2
+clauses = scaling_factor*4000
+threshold = scaling_factor*80*100
 s = 2.5
 
 (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
