@@ -5,7 +5,7 @@ from keras.datasets import mnist
 
 scaling_factor = 2
 clauses = scaling_factor*4000
-threshold = scaling_factor*80*100
+threshold = scaling_factor*80*100*10
 s = 2.5
 
 (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
