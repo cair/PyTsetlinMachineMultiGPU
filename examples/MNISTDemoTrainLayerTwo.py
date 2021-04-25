@@ -5,7 +5,7 @@ from keras.datasets import mnist
 
 scaling_factor = 2
 clauses = scaling_factor*4000
-threshold = scaling_factor*80*100*10
+threshold = scaling_factor*80*100
 s = 2.5
 
 (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
@@ -15,7 +15,7 @@ X_test_transformed = np.load("X_test_transformed.npz")['arr_0']
 
 print(X_train_transformed.shape)
 
-tm = MultiClassTsetlinMachine(clauses, threshold, s, append_negated=False)
+tm = MultiClassTsetlinMachine(clauses, threshold, s, append_negated=False, number_of_state_bits=9)
 
 print("\nAccuracy over 250 epochs:\n")
 max_accuracy = 0.0
