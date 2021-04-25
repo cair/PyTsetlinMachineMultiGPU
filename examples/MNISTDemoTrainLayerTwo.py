@@ -10,12 +10,12 @@ s = 2.5
 
 (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
 
-X_train_transformed = np.load("X_train_transformed.npz")['arr_0']
-X_test_transformed = np.load("X_test_transformed.npz")['arr_0']
+X_train_transformed = 1-np.load("X_train_transformed.npz")['arr_0']
+X_test_transformed = 1-np.load("X_test_transformed.npz")['arr_0']
 
 print(X_train_transformed.shape)
 
-tm = MultiClassTsetlinMachine(clauses, threshold, s, append_negated=False, number_of_state_bits=9)
+tm = MultiClassTsetlinMachine(clauses, threshold, s, append_negated=False)
 
 print("\nAccuracy over 250 epochs:\n")
 max_accuracy = 0.0
