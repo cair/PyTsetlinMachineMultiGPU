@@ -28,7 +28,7 @@ for i in range(1):
 
 	print("#%d Accuracy: %.2f%% Training: %.2fs Testing: %.2fs" % (i+1, result, stop_training-start_training, stop_testing-start_testing))
 
-#tm.set_state(max_ta_state)
+tm.set_state(max_ta_state)
 
 print("\nTransforming datasets")
 start_transformation = time()
