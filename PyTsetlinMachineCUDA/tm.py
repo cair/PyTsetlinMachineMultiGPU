@@ -251,10 +251,10 @@ class CommonTsetlinMachine():
 			gpu.context.synchronize()
 			local_X_transformed = np.ascontiguousarray(np.empty(number_of_examples*self.number_of_clauses_multi, dtype=np.uint32))
 			cuda.memcpy_dtoh(local_X_transformed, gpu.X_transformed_gpu)
-			global_X_transformed[:,i*self.number_of_clauses_multi:(i+1)*self.number_of_clauses_multi] = local_X_transformed
+			global_X_transformed[:,i*self.number_of_clauses_multi:(i+1)*self.number_of_clauses_multi] = local_X_transformed.reshape((number_of_examples, self.number_of_clauses_multi))
 			gpu.context.pop()
 
-		return global_X_transformed.reshape((number_of_examples, self.number_of_clauses))
+		return global_X_transformed
 
 	def _fit(self, X, encoded_Y, epochs=100, incremental=False):
 		number_of_examples = X.shape[0]
