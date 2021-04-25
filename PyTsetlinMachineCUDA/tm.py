@@ -233,7 +233,7 @@ class CommonTsetlinMachine():
 
 		for gpu in self.gpus:
 			gpu.context.push()
-			mod = SourceModule(parameters + kernels.code_header + kernels.code_transform, no_extern_c=True)
+			mod = SourceModule(parameters_multi + kernels.code_header + kernels.code_transform, no_extern_c=True)
 			gpu.transform = mod.get_function("transform")
 			gpu.X_transformed_gpu = cuda.mem_alloc(number_of_examples*self.number_of_clauses_multi*4)
 			gpu.context.pop()
