@@ -30,6 +30,12 @@ for i in range(20):
 
 tm.set_state(max_ta_state)
 
+start_testing = time()
+result = 100*(tm.predict(X_test) == Y_test).mean()
+stop_testing = time()
+
+print("Accuracy: %.2f%% Testing: %.2fs" % (result, stop_testing-start_testing))
+
 print("\nTransforming datasets")
 start_transformation = time()
 X_train_transformed = tm.transform(X_train)
