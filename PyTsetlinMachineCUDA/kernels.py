@@ -495,7 +495,7 @@ code_transform = """
 					continue;
 				}
 
-				for (int e = 0; e < NUMBER_OF_EXAMPLES; ++e) {
+				for (unsigned long long e = 0; e < NUMBER_OF_EXAMPLES; ++e) {
 					int clause_output;
 					for (int patch = 0; patch < PATCHES; ++patch) {
 						clause_output = 1;
