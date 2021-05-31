@@ -9,8 +9,8 @@ factor = 1.0
 clauses = (factor*80000)
 s = 10.0
 T = int(factor*10000)
-
 patch_size = 10
+clause_drop_p = 0.25
 
 ensembles = 10
 epochs = 250
@@ -25,10 +25,10 @@ for i in range(X_train.shape[0]):
 for i in range(X_test.shape[0]):
 	X_test[i,:] = cv2.adaptiveThreshold(X_test[i], 1, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
 
-f = open("fashion_%.1f_%d_%d_%d.txt" % (s, int(factor*2000), T,  patch_size), "w+")
+f = open("fashion_%.1f_%d_%d_%d_%.2f.txt" % (s, clauses, T, patch_size, clause_drop_p), "w+")
 
 for e in range(ensembles):
-	tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (patch_size, patch_size), weighted_clauses=True, clause_drop_p=0.25, number_of_gpus=16)
+	tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (patch_size, patch_size), weighted_clauses=True, clause_drop_p=clause_drop_p, number_of_gpus=16)
 
 	for i in range(epochs):
 	    start_training = time()
