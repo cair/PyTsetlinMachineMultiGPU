@@ -7,7 +7,7 @@ from keras.datasets import cifar10
 
 import cv2
 
-factor = 1.0
+factor = 0.1
 clauses = int(600000*factor)
 T = int(45000*factor)
 s = 10.0
