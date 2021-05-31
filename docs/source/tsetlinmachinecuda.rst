@@ -4,14 +4,6 @@ tsetlinmachinecuda package
 Submodules
 ----------
 
-tsetlinmachinecuda.kernels module
----------------------------------
-
-.. automodule:: tsetlinmachinecuda.kernels
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 tsetlinmachinecuda.tm module
 ----------------------------
 
