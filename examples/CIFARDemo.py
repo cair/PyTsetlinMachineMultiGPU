@@ -10,7 +10,7 @@ import cv2
 factor = 1.0
 clauses = int(600000*factor)
 T = int(45000*factor)
-s = 5.0
+s = 10.0
 patch_size = 8
 
 labels = [b'airplane', b'automobile', b'bird', b'cat', b'deer', b'dog', b'frog', b'horse', b'ship', b'truck']
