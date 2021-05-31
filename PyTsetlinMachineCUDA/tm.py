@@ -37,7 +37,7 @@ class GPU():
 	None
 
 class CommonTsetlinMachine():
-	def __init__(self, number_of_clauses, T, s, clause_drop_p=0.0, feature_drop_p=0.0, number_of_gpus=1, q=1.0, boost_true_positive_feedback=1, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
+	def __init__(self, number_of_clauses, T, s, clause_drop_p=0.0, feature_drop_p=0.0, number_of_gpus=1, q=1.0, boost_true_positive_feedback=1, weighted_clauses=0, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
 		self.number_of_gpus = np.minimum(cuda.Device.count(), number_of_gpus)
 
 		self.number_of_clauses = number_of_clauses
@@ -47,6 +47,7 @@ class CommonTsetlinMachine():
 		self.s = s
 		self.q = q
 		self.boost_true_positive_feedback = boost_true_positive_feedback
+		self.weighted_clauses = weighted_clauses
 		self.append_negated = append_negated
 		self.grid = grid
 		self.block = block
@@ -132,7 +133,7 @@ class CommonTsetlinMachine():
 			gpu.clause_weights_gpu = cuda.mem_alloc(self.number_of_clauses_multi*4)
 			gpu.class_sum_gpu = cuda.mem_alloc(self.number_of_classes*4)
 			gpu.drop_clause_gpu = cuda.mem_alloc(self.number_of_clauses_multi*4)
-			gpu.drop_feature_gpu = cuda.mem_alloc(self.number_of_ta_chunks*4)
+			gpu.drop_literal_gpu = cuda.mem_alloc(self.number_of_ta_chunks*4)
 			gpu.context.pop()
 
 
@@ -221,6 +222,7 @@ class CommonTsetlinMachine():
 #define FEATURES %d
 #define STATE_BITS %d
 #define BOOST_TRUE_POSITIVE_FEEDBACK %d
+#define WEIGHTED_CLAUSES %d
 #define S %f
 #define THRESHOLD %d
 
@@ -229,7 +231,7 @@ class CommonTsetlinMachine():
 #define PATCHES %d
 
 #define NUMBER_OF_EXAMPLES %d
-		""" % (self.number_of_classes, self.number_of_clauses_multi, self.number_of_features, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.negative_clauses, self.number_of_patches, number_of_examples)
+		""" % (self.number_of_classes, self.number_of_clauses_multi, self.number_of_features, self.number_of_state_bits, self.boost_true_positive_feedback, self.weighted_clauses, self.s, self.T, self.negative_clauses, self.number_of_patches, number_of_examples)
 
 		for gpu in self.gpus:
 			gpu.context.push()
@@ -281,6 +283,7 @@ class CommonTsetlinMachine():
 	#define FEATURES %d
 	#define STATE_BITS %d
 	#define BOOST_TRUE_POSITIVE_FEEDBACK %d
+	#define WEIGHTED_CLAUSES %d
 	#define S %f
 	#define THRESHOLD %d
 	#define Q %f
@@ -290,7 +293,7 @@ class CommonTsetlinMachine():
 	#define PATCHES %d
 
 	#define NUMBER_OF_EXAMPLES %d
-""" % (self.number_of_classes, self.number_of_clauses_multi, self.number_of_features, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.q, self.negative_clauses, self.number_of_patches, number_of_examples)
+""" % (self.number_of_classes, self.number_of_clauses_multi, self.number_of_features, self.number_of_state_bits, self.boost_true_positive_feedback, self.weighted_clauses, self.s, self.T, self.q, self.negative_clauses, self.number_of_patches, number_of_examples)
 
 			for gpu in self.gpus:
 				gpu.context.push()
@@ -353,20 +356,20 @@ class CommonTsetlinMachine():
 			self.sync_gpus()
 
 		for epoch in range(epochs):
-			drop_feature = (np.random.rand(self.number_of_features) <= self.feature_drop_p).astype(np.uint32)
-			drop_feature_chunk = np.zeros(self.number_of_ta_chunks).astype(np.uint32)
+			drop_literal = (np.random.rand(self.number_of_features) <= self.feature_drop_p).astype(np.uint32)
+			drop_literal_chunk = np.zeros(self.number_of_ta_chunks).astype(np.uint32)
 			for k in range(self.number_of_features):
-				if drop_feature[k] == 1:
+				if drop_literal[k] == 1:
 					ta_chunk = k // 32
 					ta_pos = k % 32
-					drop_feature_chunk[ta_chunk] |= (1 << ta_pos)
+					drop_literal_chunk[ta_chunk] |= (1 << ta_pos)
 
 			for i in range(len(self.gpus)):
 				gpu = self.gpus[i]
 				gpu.context.push()
 				drop_clause = np.ascontiguousarray(np.random.rand(self.number_of_clauses_multi) <= self.clause_drop_p).astype(np.uint32)
 				cuda.memcpy_htod(gpu.drop_clause_gpu, drop_clause)
-				cuda.memcpy_htod(gpu.drop_feature_gpu, drop_feature_chunk)
+				cuda.memcpy_htod(gpu.drop_literal_gpu, drop_literal_chunk)
 				gpu.context.pop()
 
 			for e in range(number_of_examples):
@@ -376,7 +379,7 @@ class CommonTsetlinMachine():
 					class_sum = np.ascontiguousarray(np.zeros(self.number_of_classes)).astype(np.int32)
 					cuda.memcpy_htod(gpu.class_sum_gpu, class_sum)
 
-					gpu.evaluate_update.prepared_call(self.grid, self.block, gpu.ta_state_gpu, gpu.clause_weights_gpu, gpu.class_sum_gpu, gpu.drop_clause_gpu, gpu.drop_feature_gpu, self.encoded_X_training_gpus[i], np.int32(e))
+					gpu.evaluate_update.prepared_call(self.grid, self.block, gpu.ta_state_gpu, gpu.clause_weights_gpu, gpu.class_sum_gpu, gpu.drop_clause_gpu, gpu.drop_literal_gpu, self.encoded_X_training_gpus[i], np.int32(e))
 					gpu.context.pop()
 
 				global_class_sum = np.ascontiguousarray(np.zeros(self.number_of_classes)).astype(np.int32)
@@ -399,7 +402,7 @@ class CommonTsetlinMachine():
 					gpu = self.gpus[i]
 					gpu.context.push()
 					gpu.context.synchronize()
-					gpu.update.prepared_call(self.grid, self.block, gpu.g.state, gpu.ta_state_gpu, gpu.clause_weights_gpu, gpu.class_sum_gpu, gpu.drop_clause_gpu, gpu.drop_feature_gpu, self.encoded_X_training_gpus[i], self.Y_gpus[i], np.int32(e))
+					gpu.update.prepared_call(self.grid, self.block, gpu.g.state, gpu.ta_state_gpu, gpu.clause_weights_gpu, gpu.class_sum_gpu, gpu.drop_clause_gpu, gpu.drop_literal_gpu, self.encoded_X_training_gpus[i], self.Y_gpus[i], np.int32(e))
 					gpu.context.pop()
 
 				self.sync_gpus()
@@ -429,6 +432,7 @@ class CommonTsetlinMachine():
 	#define FEATURES %d
 	#define STATE_BITS %d
 	#define BOOST_TRUE_POSITIVE_FEEDBACK %d
+	#define WEIGHTED_CLAUSES %d
 	#define S %f
 	#define THRESHOLD %d
 
@@ -437,7 +441,7 @@ class CommonTsetlinMachine():
 	#define PATCHES %d
 
 	#define NUMBER_OF_EXAMPLES %d
-			""" % (self.number_of_classes, self.number_of_clauses_multi, self.number_of_features, self.number_of_state_bits, self.boost_true_positive_feedback, self.s, self.T, self.negative_clauses, self.number_of_patches, number_of_examples)
+			""" % (self.number_of_classes, self.number_of_clauses_multi, self.number_of_features, self.number_of_state_bits, self.boost_true_positive_feedback, self.weighted_clauses, self.s, self.T, self.negative_clauses, self.number_of_patches, number_of_examples)
 
 			self.class_sum_gpus = []
 			for gpu in self.gpus:
@@ -474,8 +478,8 @@ class MultiClassConvolutionalTsetlinMachine2D(CommonTsetlinMachine):
 	This class ...
 	"""
 	
-	def __init__(self, number_of_clauses, T, s, patch_dim, clause_drop_p=0.0, feature_drop_p=0.0, number_of_gpus=1, q=1.0, boost_true_positive_feedback=1, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
-		super().__init__(number_of_clauses, T, s, clause_drop_p=clause_drop_p, feature_drop_p=feature_drop_p, number_of_gpus=number_of_gpus, q=q, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
+	def __init__(self, number_of_clauses, T, s, patch_dim, clause_drop_p=0.0, feature_drop_p=0.0, number_of_gpus=1, q=1.0, boost_true_positive_feedback=1, weighted_clauses=0, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
+		super().__init__(number_of_clauses, T, s, clause_drop_p=clause_drop_p, feature_drop_p=feature_drop_p, number_of_gpus=number_of_gpus, q=q, boost_true_positive_feedback=boost_true_positive_feedback, weighted_clauses=weighted_clauses, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
 		self.patch_dim = patch_dim
 		self.negative_clauses = 1
 
@@ -498,8 +502,8 @@ class MultiClassConvolutionalTsetlinMachine2D(CommonTsetlinMachine):
 		return np.argmax(self.score(X), axis=0)
 
 class MultiClassTsetlinMachine(CommonTsetlinMachine):
-	def __init__(self, number_of_clauses, T, s, clause_drop_p=0.0, feature_drop_p=0.0, number_of_gpus=1, boost_true_positive_feedback=1, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
-		super().__init__(number_of_clauses, T, s, clause_drop_p=clause_drop_p, feature_drop_p=feature_drop_p, number_of_gpus=number_of_gpus, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
+	def __init__(self, number_of_clauses, T, s, clause_drop_p=0.0, feature_drop_p=0.0, number_of_gpus=1, boost_true_positive_feedback=1, weighted_clauses=0, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
+		super().__init__(number_of_clauses, T, s, clause_drop_p=clause_drop_p, feature_drop_p=feature_drop_p, number_of_gpus=number_of_gpus, boost_true_positive_feedback=boost_true_positive_feedback, weighted_clauses=weighted_clauses, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
 		self.negative_clauses = 1
 
 	def fit(self, X, Y, epochs=100, incremental=False):
@@ -527,8 +531,8 @@ class MultiClassTsetlinMachine(CommonTsetlinMachine):
 		return np.argmax(self.score(X), axis=0)
 
 class TsetlinMachine(CommonTsetlinMachine):
-	def __init__(self, number_of_clauses, T, s, clause_drop_p=0.0, feature_drop_p=0.0, number_of_gpus=1, boost_true_positive_feedback=1, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
-		super().__init__(number_of_clauses, T, s, clause_drop_p=clause_drop_p, feature_drop_p=feature_drop_p, number_of_gpus=number_of_gpus, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
+	def __init__(self, number_of_clauses, T, s, clause_drop_p=0.0, feature_drop_p=0.0, number_of_gpus=1, boost_true_positive_feedback=1, weighted_clauses=0, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
+		super().__init__(number_of_clauses, T, s, clause_drop_p=clause_drop_p, feature_drop_p=feature_drop_p, number_of_gpus=number_of_gpus, boost_true_positive_feedback=boost_true_positive_feedback, weighted_clauses=weighted_clauses, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
 		self.negative_clauses = 1
 
 	def fit(self, X, Y, epochs=100, incremental=False):
@@ -554,8 +558,8 @@ class TsetlinMachine(CommonTsetlinMachine):
 		return self.score(X) >= 0
 
 class RegressionTsetlinMachine(CommonTsetlinMachine):
-	def __init__(self, number_of_clauses, T, s, number_of_gpus=1, boost_true_positive_feedback=1, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
-		super().__init__(number_of_clauses, T, s, clause_drop_p=clause_drop_p, feature_drop_p=feature_drop_p, number_of_gpus=number_of_gpus, boost_true_positive_feedback=boost_true_positive_feedback, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
+	def __init__(self, number_of_clauses, T, s, number_of_gpus=1, boost_true_positive_feedback=1, weighted_clauses=0, number_of_state_bits=8, append_negated=True, grid=(16*13,1,1), block=(128,1,1)):
+		super().__init__(number_of_clauses, T, s, clause_drop_p=clause_drop_p, feature_drop_p=feature_drop_p, number_of_gpus=number_of_gpus, boost_true_positive_feedback=boost_true_positive_feedback, weighted_clauses=weighted_clauses, number_of_state_bits=number_of_state_bits, append_negated=append_negated, grid=grid, block=block)
 		self.negative_clauses = 0
 
 	def fit(self, X, Y, epochs=100, incremental=False):

@@ -131,9 +131,11 @@ code_update = """
 			int absolute_prediction_error = abs(y - class_sum);
 			if (curand_uniform(localState) <= 1.0*absolute_prediction_error/(2*THRESHOLD)) {
 				if (target*sign > 0) {
-					if (clause_output && abs(*clause_weight) < INT_MAX) {
-						(*clause_weight) += sign;
-					}
+					#if WEIGHTED_CLAUSES == 1
+						if (clause_output && abs(*clause_weight) < INT_MAX) {
+							(*clause_weight) += sign;
+						}
+					#endif
 
 					// Type I Feedback
 					for (int la_chunk = 0; la_chunk < LA_CHUNKS; ++la_chunk) {
@@ -160,9 +162,11 @@ code_update = """
 				} else if (target*sign < 0 && clause_output) {
 					// Type II Feedback
 
-					if (abs(*clause_weight) > 1) {
-						(*clause_weight) -= sign;
-					}
+					#if WEIGHTED_CLAUSES == 1
+						if (abs(*clause_weight) > 1) {
+							(*clause_weight) -= sign;
+						}
+					#endif
 					
 					for (int la_chunk = 0; la_chunk < LA_CHUNKS; ++la_chunk) {
 						inc(ta_state, 0, la_chunk, (~drop_feature[la_chunk]) & (~X[clause_patch*LA_CHUNKS + la_chunk]) & (~ta_state[la_chunk*STATE_BITS + STATE_BITS - 1]));
