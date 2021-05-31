@@ -1,4 +1,4 @@
-from PyTsetlinMachineCUDA.tm import MultiClassConvolutionalTsetlinMachine2D
+from tsetlinmachinecuda.tm import MultiClassConvolutionalTsetlinMachine2D
 
 import numpy as np
 from time import time
@@ -34,7 +34,7 @@ X_test = np.where(X_test >= 75, 1, 0)
 f = open("mnist_%.1f_%d_%d_%d.txt" % (s, clauses, T,  patch_size), "w+")
 
 for e in range(ensembles):
-	tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (patch_size, patch_size), clause_drop_p = 0.01, feature_drop_p = 0.01, number_of_gpus = 16)
+	tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (patch_size, patch_size), weighted_clauses=1, clause_drop_p = 0.01, feature_drop_p = 0.01, number_of_gpus = 16)
 
 	for i in range(epochs):
 		start_training = time()
