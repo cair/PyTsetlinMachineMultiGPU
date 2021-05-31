@@ -1,4 +1,5 @@
-# Tsetlin Machine Multi-GPU w/Dropout
+# Tsetlin Machine Multi-GPU
+![License](https://img.shields.io/github/license/microsoft/interpret.svg?style=flat-square) ![Python Version](https://img.shields.io/pypi/pyversions/interpret.svg?style=flat-square) ![Maintenance](https://img.shields.io/maintenance/yes/2021?style=flat-square)
 
 ### CIFAR Demo
 
