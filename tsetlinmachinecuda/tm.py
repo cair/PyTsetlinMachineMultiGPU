@@ -23,7 +23,7 @@
 
 import numpy as np
 
-import PyTsetlinMachineCUDA.kernels as kernels
+import tsetlinmachinecuda.kernels as kernels
 
 import pycuda.curandom as curandom
 import pycuda.driver as cuda
