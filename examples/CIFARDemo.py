@@ -35,7 +35,7 @@ datagen.fit(X_train)
 
 f = open("cifar10_%.1f_%d_%d_%d.txt" % (s, clauses, T,  patch_size), "w+")
 
-tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (patch_size, patch_size), clause_drop_p = 0.1, number_of_gpus=16)
+tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (patch_size, patch_size), weighted_clauses=True, clause_drop_p = 0.1, number_of_gpus=16)
 
 batch = 0
 for X_batch, Y_batch in datagen.flow(X_train, Y_train, batch_size=10000):
