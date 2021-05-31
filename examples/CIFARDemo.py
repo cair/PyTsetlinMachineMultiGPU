@@ -7,10 +7,10 @@ from keras.datasets import cifar10
 
 import cv2
 
-factor = 20
-clauses = int(4000*factor)
-T = int(75*10*factor)
-s = 20.0
+factor = 1.0
+clauses = int(600000*factor)
+T = int(45000*factor)
+s = 5.0
 patch_size = 8
 
 labels = [b'airplane', b'automobile', b'bird', b'cat', b'deer', b'dog', b'frog', b'horse', b'ship', b'truck']
@@ -35,7 +35,7 @@ datagen.fit(X_train)
 
 f = open("cifar10_%.1f_%d_%d_%d.txt" % (s, clauses, T,  patch_size), "w+")
 
-tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (patch_size, patch_size), weighted_clauses=True, clause_drop_p = 0.1, number_of_gpus=16)
+tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (patch_size, patch_size), weighted_clauses=True, clause_drop_p = 0.5, number_of_gpus=16)
 
 batch = 0
 for X_batch, Y_batch in datagen.flow(X_train, Y_train, batch_size=10000):
