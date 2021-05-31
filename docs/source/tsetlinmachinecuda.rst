@@ -12,6 +12,9 @@ tsetlinmachinecuda.tm module
    :undoc-members:
    :show-inheritance:
 
+.. autoclass:: tsetlinmachinecuda.tm.MultiClassTsetlinMachine
+   :members:
+
 tsetlinmachinecuda.tools module
 -------------------------------
 
