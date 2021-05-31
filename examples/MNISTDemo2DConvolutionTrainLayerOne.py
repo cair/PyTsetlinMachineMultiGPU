@@ -1,4 +1,4 @@
-from PyTsetlinMachineCUDA.tm import MultiClassConvolutionalTsetlinMachine2D
+from tsetlinmachinecuda.tm import MultiClassConvolutionalTsetlinMachine2D
 import numpy as np
 from time import time
 
@@ -9,7 +9,7 @@ from keras.datasets import mnist
 X_train = np.where(X_train >= 75, 1, 0) 
 X_test = np.where(X_test >= 75, 1, 0) 
 
-tm = MultiClassConvolutionalTsetlinMachine2D(4000, 10*100, 10.0, (10, 10))
+tm = MultiClassConvolutionalTsetlinMachine2D(4000, 10*100, 10.0, (10, 10), weighted_clauses=1)
 
 print("\nAccuracy over 20 epochs:\n")
 max_accuracy = 0.0
