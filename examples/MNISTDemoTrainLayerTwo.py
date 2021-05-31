@@ -1,4 +1,4 @@
-from PyTsetlinMachineCUDA.tm import MultiClassTsetlinMachine
+from tsetlinmachinecuda.tm import MultiClassTsetlinMachine
 import numpy as np
 from time import time
 from keras.datasets import mnist
@@ -15,7 +15,7 @@ X_test_transformed = 1-np.load("X_test_transformed.npz")['arr_0']
 
 print(X_train_transformed.shape)
 
-tm = MultiClassTsetlinMachine(clauses, threshold, s, append_negated=False)
+tm = MultiClassTsetlinMachine(clauses, threshold, s, append_negated=False, weighted_clauses=True)
 
 print("\nAccuracy over 250 epochs:\n")
 max_accuracy = 0.0
