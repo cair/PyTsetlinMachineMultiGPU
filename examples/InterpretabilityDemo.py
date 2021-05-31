@@ -1,4 +1,4 @@
-from PyTsetlinMachineCUDA.tm import MultiClassTsetlinMachine
+from tsetlinmachinecuda.tm import MultiClassTsetlinMachine
 import numpy as np 
 
 number_of_features = 20
