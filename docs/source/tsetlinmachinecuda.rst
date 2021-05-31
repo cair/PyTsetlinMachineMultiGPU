@@ -13,6 +13,7 @@ tsetlinmachinecuda.tm module
    :show-inheritance:
 
 .. autoclass:: tsetlinmachinecuda.tm.MultiClassTsetlinMachine
+   :noindex:
    :members:
 
 tsetlinmachinecuda.tools module
