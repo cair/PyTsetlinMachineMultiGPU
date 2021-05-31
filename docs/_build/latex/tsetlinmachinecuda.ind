@@ -1,0 +1,97 @@
+\begin{sphinxtheindex}
+\let\bigletter\sphinxstyleindexlettergroup
+\let\spxpagem \sphinxstyleindexpagemain
+\let\spxentry \sphinxstyleindexentry
+\let\spxextra \sphinxstyleindexextra
+
+  \bigletter A
+  \item \spxentry{allocate\_gpu\_memory\_multi()}\spxextra{tsetlinmachinecuda.tm.CommonTsetlinMachine method}, 
+		\hyperpage{1}
+
+  \indexspace
+  \bigletter B
+  \item \spxentry{Booleanizer}\spxextra{class in tsetlinmachinecuda.tools}, \hyperpage{3}
+
+  \indexspace
+  \bigletter C
+  \item \spxentry{CommonTsetlinMachine}\spxextra{class in tsetlinmachinecuda.tm}, \hyperpage{1}
+
+  \indexspace
+  \bigletter E
+  \item \spxentry{encode\_X\_multi()}\spxextra{tsetlinmachinecuda.tm.CommonTsetlinMachine method}, 
+		\hyperpage{1}
+
+  \indexspace
+  \bigletter F
+  \item \spxentry{fit()}\spxextra{tsetlinmachinecuda.tm.MultiClassConvolutionalTsetlinMachine2D method}, 
+		\hyperpage{2}
+  \item \spxentry{fit()}\spxextra{tsetlinmachinecuda.tm.MultiClassTsetlinMachine method}, 
+		\hyperpage{2}
+  \item \spxentry{fit()}\spxextra{tsetlinmachinecuda.tm.RegressionTsetlinMachine method}, 
+		\hyperpage{2}
+  \item \spxentry{fit()}\spxextra{tsetlinmachinecuda.tm.TsetlinMachine method}, \hyperpage{2}
+  \item \spxentry{fit()}\spxextra{tsetlinmachinecuda.tools.Booleanizer method}, \hyperpage{3}
+
+  \indexspace
+  \bigletter G
+  \item \spxentry{get\_state()}\spxextra{tsetlinmachinecuda.tm.CommonTsetlinMachine method}, 
+		\hyperpage{1}
+  \item \spxentry{get\_weight()}\spxextra{tsetlinmachinecuda.tm.CommonTsetlinMachine method}, 
+		\hyperpage{1}
+  \item \spxentry{GPU}\spxextra{class in tsetlinmachinecuda.tm}, \hyperpage{1}
+
+  \indexspace
+  \bigletter M
+  \item \spxentry{module}
+    \subitem \spxentry{tsetlinmachinecuda}, \hyperpage{3}
+    \subitem \spxentry{tsetlinmachinecuda.kernels}, \hyperpage{1}
+    \subitem \spxentry{tsetlinmachinecuda.tm}, \hyperpage{1}
+    \subitem \spxentry{tsetlinmachinecuda.tools}, \hyperpage{3}
+  \item \spxentry{MultiClassConvolutionalTsetlinMachine2D}\spxextra{class in tsetlinmachinecuda.tm}, 
+		\hyperpage{1}
+  \item \spxentry{MultiClassTsetlinMachine}\spxextra{class in tsetlinmachinecuda.tm}, \hyperpage{2}
+
+  \indexspace
+  \bigletter P
+  \item \spxentry{predict()}\spxextra{tsetlinmachinecuda.tm.MultiClassConvolutionalTsetlinMachine2D method}, 
+		\hyperpage{2}
+  \item \spxentry{predict()}\spxextra{tsetlinmachinecuda.tm.MultiClassTsetlinMachine method}, 
+		\hyperpage{2}
+  \item \spxentry{predict()}\spxextra{tsetlinmachinecuda.tm.RegressionTsetlinMachine method}, 
+		\hyperpage{2}
+  \item \spxentry{predict()}\spxextra{tsetlinmachinecuda.tm.TsetlinMachine method}, \hyperpage{2}
+
+  \indexspace
+  \bigletter R
+  \item \spxentry{RegressionTsetlinMachine}\spxextra{class in tsetlinmachinecuda.tm}, \hyperpage{2}
+
+  \indexspace
+  \bigletter S
+  \item \spxentry{score()}\spxextra{tsetlinmachinecuda.tm.MultiClassConvolutionalTsetlinMachine2D method}, 
+		\hyperpage{2}
+  \item \spxentry{score()}\spxextra{tsetlinmachinecuda.tm.MultiClassTsetlinMachine method}, 
+		\hyperpage{2}
+  \item \spxentry{score()}\spxextra{tsetlinmachinecuda.tm.TsetlinMachine method}, \hyperpage{2}
+  \item \spxentry{set\_state()}\spxextra{tsetlinmachinecuda.tm.CommonTsetlinMachine method}, 
+		\hyperpage{1}
+  \item \spxentry{sync\_gpus()}\spxextra{tsetlinmachinecuda.tm.CommonTsetlinMachine method}, 
+		\hyperpage{1}
+
+  \indexspace
+  \bigletter T
+  \item \spxentry{ta\_action()}\spxextra{tsetlinmachinecuda.tm.CommonTsetlinMachine method}, 
+		\hyperpage{1}
+  \item \spxentry{transform()}\spxextra{tsetlinmachinecuda.tm.CommonTsetlinMachine method}, 
+		\hyperpage{1}
+  \item \spxentry{transform()}\spxextra{tsetlinmachinecuda.tools.Booleanizer method}, \hyperpage{3}
+  \item \spxentry{TsetlinMachine}\spxextra{class in tsetlinmachinecuda.tm}, \hyperpage{2}
+  \item \spxentry{tsetlinmachinecuda}
+    \subitem \spxentry{module}, \hyperpage{3}
+  \item \spxentry{tsetlinmachinecuda.kernels}
+    \subitem \spxentry{module}, \hyperpage{1}
+  \item \spxentry{tsetlinmachinecuda.tm}
+    \subitem \spxentry{module}, \hyperpage{1}
+  \item \spxentry{tsetlinmachinecuda.tools}
+    \subitem \spxentry{module}, \hyperpage{3}
+
+\end{sphinxtheindex}
