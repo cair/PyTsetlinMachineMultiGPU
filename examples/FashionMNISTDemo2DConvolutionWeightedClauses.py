@@ -4,11 +4,11 @@ from time import time
 import cv2
 from keras.datasets import fashion_mnist
 
-factor = 20.0
+factor = 1.0
 
+clauses = (factor*80000)
 s = 10.0
-
-T = int(factor*25*10)
+T = int(factor*10000)
 
 patch_size = 10
 
@@ -28,7 +28,7 @@ for i in range(X_test.shape[0]):
 f = open("fashion_%.1f_%d_%d_%d.txt" % (s, int(factor*2000), T,  patch_size), "w+")
 
 for e in range(ensembles):
-	tm = MultiClassConvolutionalTsetlinMachine2D(int(factor*2000), T, s, (10, 10), weighted_clauses=True, number_of_gpus=16)
+	tm = MultiClassConvolutionalTsetlinMachine2D(clauses, T, s, (patch_size, patch_size), weighted_clauses=True, clause_drop_p=0.25, number_of_gpus=16)
 
 	for i in range(epochs):
 	    start_training = time()
