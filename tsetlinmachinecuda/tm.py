@@ -41,7 +41,6 @@ class CommonTsetlinMachine():
 		self.number_of_gpus = np.minimum(cuda.Device.count(), number_of_gpus)
 
 		self.number_of_clauses = number_of_clauses
-		self.number_of_clauses_multi = int(number_of_clauses // self.number_of_gpus)
 		self.number_of_state_bits = number_of_state_bits
 		self.T = int(T)
 		self.s = s
@@ -172,7 +171,7 @@ class CommonTsetlinMachine():
 	def set_state(self, state):
 		self.number_of_classes = state[2]
 		self.number_of_clauses = state[3]
-		self.number_of_clauses_multi = int(self.number_of_clauses // self.number_of_gpus)
+		self.number_of_clauses_multi = int((self.number_of_classes * self.number_of_clauses) // self.number_of_gpus)
 		self.number_of_features = state[4]
 		self.dim = state[5]
 		self.patch_dim = state[6]
@@ -485,7 +484,8 @@ class MultiClassConvolutionalTsetlinMachine2D(CommonTsetlinMachine):
 
 	def fit(self, X, Y, epochs=100, incremental=False):
 		self.number_of_classes = int(np.max(Y) + 1)
-	
+		self.number_of_clauses_multi = int((self.number_of_classes * self.number_of_clauses) // self.number_of_gpus)
+
 		self.max_y = None
 		self.min_y = None
 		
@@ -510,6 +510,8 @@ class MultiClassTsetlinMachine(CommonTsetlinMachine):
 		X = X.reshape(X.shape[0], X.shape[1], 1)
 
 		self.number_of_classes = int(np.max(Y) + 1)
+		self.number_of_clauses_multi = int((self.number_of_classes * self.number_of_clauses) // self.number_of_gpus)
+
 		self.patch_dim = (X.shape[1], 1, 1)
 
 		self.max_y = None
@@ -539,6 +541,8 @@ class TsetlinMachine(CommonTsetlinMachine):
 		X = X.reshape(X.shape[0], X.shape[1], 1)
 
 		self.number_of_classes = 1
+		self.number_of_clauses_multi = int((self.number_of_classes * self.number_of_clauses) // self.number_of_gpus)
+
 		self.patch_dim = (X.shape[1], 1, 1)
 		
 		self.max_y = None
@@ -566,6 +570,8 @@ class RegressionTsetlinMachine(CommonTsetlinMachine):
 		X = X.reshape(X.shape[0], X.shape[1], 1)
 		
 		self.number_of_classes = 1
+		self.number_of_clauses_multi = int((self.number_of_classes * self.number_of_clauses) // self.number_of_gpus)
+
 		self.patch_dim = (X.shape[1], 1, 1)
 
 		self.max_y = np.max(Y)
