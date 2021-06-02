@@ -6,7 +6,7 @@ from keras.datasets import fashion_mnist
 
 factor = 1.0
 
-clauses = (factor*80000)
+clauses = (factor*8000)
 s = 10.0
 T = int(factor*10000)
 patch_size = 10
