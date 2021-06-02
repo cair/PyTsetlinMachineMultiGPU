@@ -8,7 +8,7 @@ from keras.datasets import cifar10
 import cv2
 
 factor = 0.1
-clauses = int(600000*factor)
+clauses = int(60000*factor)
 T = int(45000*factor)
 s = 10.0
 patch_size = 8
