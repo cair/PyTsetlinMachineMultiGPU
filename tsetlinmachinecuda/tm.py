@@ -245,7 +245,7 @@ class CommonTsetlinMachine():
 			gpu.transform(gpu.ta_state_gpu, self.encoded_X_transform_gpus[i], gpu.X_transformed_gpu, grid=self.grid, block=self.block)
 			gpu.context.pop()
 
-		global_X_transformed = np.empty((number_of_examples, self.number_of_clauses), dtype=np.uint32)
+		global_X_transformed = np.empty((number_of_examples, self.number_of_clauses*self.number_of_classes), dtype=np.uint32)
 		for i in range(len(self.gpus)):
 			gpu = self.gpus[i]
 			gpu.context.push()
